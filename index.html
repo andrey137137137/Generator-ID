@@ -67,7 +67,7 @@
         methods: {
           copy: function () {
             this.$refs.result.select();
-            console.log(this.$refs.result.value);
+            // console.log(this.$refs.result.value);
             document.execCommand('copy');
           },
           clear: function () {
@@ -76,7 +76,8 @@
           },
           generate: function () {
             var now = new Date();
-            this.result = now.getTime();
+            var strNow = String(now.getTime());
+            this.result = strNow.split('').reverse().join('');
             document.title = 'Новый ID: ' + this.result;
           },
         },
