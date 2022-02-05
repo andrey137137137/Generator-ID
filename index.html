@@ -40,6 +40,8 @@
       }
 
       .main-input {
+        position: absolute;
+        bottom: -100px;
         opacity: 0;
       }
     </style>
@@ -64,8 +66,8 @@
         },
         methods: {
           copy: function () {
-            console.log(this.$refs.result);
             this.$refs.result.select();
+            console.log(this.$refs.result.value);
             document.execCommand('copy');
           },
           clear: function () {
@@ -78,7 +80,7 @@
             document.title = 'Новый ID: ' + this.result;
           },
         },
-        created: function () {
+        mounted: function () {
           this.generate();
           window.onblur = this.clear;
           window.onfocus = this.generate;
