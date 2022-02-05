@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 23px;
+        text-align: center;
+      }
+
+      .header {
+        padding: 25px 0;
+      }
+
+      .main {
+        margin: 0 auto;
+      }
+
+      .main-result {
+        margin-top: 10px;
+        padding: 30px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <h1 class="header-title">Generator ID</h1>
+    </header>
+    <main id="app" class="main">
+      <div>
+        <button class="main-btn" @click="toggleTimeout">{{ toggleTimeoutTitle }}</button>
+        <input type="number" min="1" max="60" v-model.number="timeout" />
+      </div>
+      <div>
+        <button class="main-btn" @click="clear">RESET</button>
+        <button class="main-btn" @click="generate">GENERATE</button>
+      </div>
+      <p class="main-result">{{ result }}</p>
+    </main>
+
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          isSetTimeout: false,
+          timeout: 15,
+          result: '',
+          timeoutID: 0,
+        },
+        computed: {
+          toggleTimeoutTitle: function () {
+            return 'TOGGLE ' + (!this.isSetTimeout ? 'ON' : 'OFF') + ' TIMEOUT';
+          },
+        },
+        methods: {
+          toggleTimeout: function () {
+            this.resetTimeout();
+            this.isSetTimeout = !this.isSetTimeout;
+            this.startTimeout();
+          },
+          resetTimeout: function () {
+            if (this.isSetTimeout && this.timeoutID) {
+              clearTimeout(this.timeoutID);
+              this.timeoutID = 0;
+            }
+          },
+          startTimeout: function () {
+            var $vm = this;
+            if ($vm.isSetTimeout) {
+              $vm.timeoutID = setTimeout(function () {
+                $vm.clear();
+              }, $vm.timeout * 1000);
+            }
+          },
+          clear: function () {
+            this.resetTimeout();
+            this.result = '';
+          },
+          generate: function () {
+            this.resetTimeout();
+            var now = new Date();
+            this.result = now.getTime();
+            this.startTimeout();
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
