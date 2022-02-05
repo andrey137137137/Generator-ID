@@ -4,13 +4,24 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Генератор ID</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+      }
+
+      html,
+      body,
+      #app {
+        height: 100%;
+      }
+
+      body,
+      #app {
+        position: relative;
       }
 
       body {
@@ -25,75 +36,52 @@
 
       .main {
         margin: 0 auto;
+        padding: 40px 0 30px;
       }
 
-      .main-result {
-        margin-top: 10px;
-        padding: 30px 0;
+      .main-input {
+        opacity: 0;
       }
     </style>
   </head>
 
   <body>
-    <header class="header">
-      <h1 class="header-title">Generator ID</h1>
-    </header>
-    <main id="app" class="main">
-      <div>
-        <button class="main-btn" @click="toggleTimeout">{{ toggleTimeoutTitle }}</button>
-        <input type="number" min="1" max="60" v-model.number="timeout" />
-      </div>
-      <div>
-        <button class="main-btn" @click="clear">RESET</button>
-        <button class="main-btn" @click="generate">GENERATE</button>
-      </div>
-      <p class="main-result">{{ result }}</p>
-    </main>
+    <div id="app" @click="copy">
+      <header class="header">
+        <h1 class="header-title">Generator ID</h1>
+      </header>
+      <main class="main">
+        <p class="main-result">{{ result }}</p>
+        <input class="main-input" type="text" ref="result" v-model="result" />
+      </main>
+    </div>
 
     <script>
       var app = new Vue({
         el: '#app',
         data: {
-          isSetTimeout: false,
-          timeout: 15,
           result: '',
-          timeoutID: 0,
-        },
-        computed: {
-          toggleTimeoutTitle: function () {
-            return 'TOGGLE ' + (!this.isSetTimeout ? 'ON' : 'OFF') + ' TIMEOUT';
-          },
         },
         methods: {
-          toggleTimeout: function () {
-            this.resetTimeout();
-            this.isSetTimeout = !this.isSetTimeout;
-            this.startTimeout();
-          },
-          resetTimeout: function () {
-            if (this.isSetTimeout && this.timeoutID) {
-              clearTimeout(this.timeoutID);
-              this.timeoutID = 0;
-            }
-          },
-          startTimeout: function () {
-            var $vm = this;
-            if ($vm.isSetTimeout) {
-              $vm.timeoutID = setTimeout(function () {
-                $vm.clear();
-              }, $vm.timeout * 1000);
-            }
+          copy: function () {
+            console.log(this.$refs.result);
+            this.$refs.result.select();
+            document.execCommand('copy');
           },
           clear: function () {
-            this.resetTimeout();
             this.result = '';
+            document.title = 'ID удалён' + this.result;
           },
           generate: function () {
-            this.resetTimeout();
             var now = new Date();
             this.result = now.getTime();
-            this.startTimeout();
+            document.title = 'Новый ID: ' + this.result;
           },
+        },
+        created: function () {
+          this.generate();
+          window.onblur = this.clear;
+          window.onfocus = this.generate;
         },
       });
     </script>
