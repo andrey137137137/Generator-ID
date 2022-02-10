@@ -31,15 +31,45 @@
       }
 
       .header {
-        padding: 25px 0;
+        display: grid;
+        grid-template-columns: 1fr 3fr 1fr;
+      }
+
+      .header-input,
+      .header-btn {
+        display: block;
+        padding: 10px;
+        font-size: 30px;
       }
 
       .main {
         margin: 0 auto;
         padding: 40px 0 30px;
+        height: 100%;
       }
 
       .main-input {
+        display: block;
+        margin: 10px auto;
+        padding: 10px;
+        font-size: 25px;
+      }
+
+      .main-result {
+        display: table;
+        margin: 20px auto 0;
+        border-radius: 20px;
+        padding: 20px;
+        background-color: rgb(54, 54, 54);
+        color: #fff;
+        visibility: hidden;
+      }
+
+      .main-result--visible {
+        visibility: visible;
+      }
+
+      .main-hidden {
         position: absolute;
         bottom: -100px;
         opacity: 0;
@@ -48,13 +78,18 @@
   </head>
 
   <body>
-    <div id="app" @click="copy">
+    <div id="app">
       <header class="header">
         <h1 class="header-title">Generator ID</h1>
+        <input class="header-input" type="text" ref="prefix" v-model="prefix" />
+        <button class="header-btn" @click="prefix = ''">Очистить</button>
       </header>
-      <main class="main">
-        <p class="main-result">{{ result }}</p>
-        <input class="main-input" type="text" ref="result" v-model="result" />
+      <main class="main" @click="copy">
+        <div :class="resultClasses">
+          {{ result }} <br />
+          скопирован
+        </div>
+        <input class="main-hidden" type="text" ref="result" v-model="result" />
       </main>
     </div>
 
@@ -62,29 +97,70 @@
       var app = new Vue({
         el: '#app',
         data: {
+          prefix: '',
           result: '',
+          isCopied: false,
+          isStarted: false,
+        },
+        computed: {
+          // btnLabel: function () {
+          //   return this.isStarted ? 'Остановить' : 'Запустить';
+          // },
+          resultClasses: function () {
+            return {
+              'main-result': true,
+              'main-result--visible': this.isStarted && this.isCopied,
+            };
+          },
         },
         methods: {
+          regenerate: function () {
+            this.generate();
+            this.copy();
+          },
+          startStop: function () {
+            if (this.isStarted) {
+              this.stop();
+            } else {
+              this.start();
+            }
+            this.isStarted = !this.isStarted;
+          },
           copy: function () {
             this.$refs.result.select();
             // console.log(this.$refs.result.value);
             document.execCommand('copy');
+            this.isCopied = true;
           },
           clear: function () {
             this.result = '';
+            this.isCopied = false;
             document.title = 'ID удалён' + this.result;
           },
           generate: function () {
             var now = new Date();
             var strNow = String(now.getTime());
-            this.result = strNow.split('').reverse().join('');
+
+            if (this.prefix) {
+              this.prefix = this.prefix + ' ';
+            }
+
+            this.result = this.prefix + strNow.split('').reverse().join('');
             document.title = 'Новый ID: ' + this.result;
+          },
+          start: function () {
+            this.generate();
+            window.addEventListener('blur', this.clear);
+            window.addEventListener('focus', this.generate);
+          },
+          stop: function () {
+            this.clear();
+            window.removeEventListener('blur', this.clear);
+            window.removeEventListener('focus', this.generate);
           },
         },
         mounted: function () {
-          this.generate();
-          window.onblur = this.clear;
-          window.onfocus = this.generate;
+          this.startStop();
         },
       });
     </script>
