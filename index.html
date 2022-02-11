@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Генератор ID</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.bootcss.com/clipboard.js/2.0.4/clipboard.min.js"></script>
     <style>
       * {
         margin: 0;
@@ -30,9 +31,12 @@
         text-align: center;
       }
 
-      .header {
+      .grid {
         display: grid;
-        grid-template-columns: 1fr 3fr 1fr;
+      }
+
+      .header {
+        grid-template-columns: 1fr 2fr;
       }
 
       .header-input,
@@ -74,23 +78,34 @@
         bottom: -100px;
         opacity: 0;
       }
+
+      .footer {
+        position: fixed;
+        bottom: 0;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+      }
     </style>
   </head>
 
   <body>
     <div id="app">
-      <header class="header">
-        <h1 class="header-title">Generator ID</h1>
-        <input class="header-input" type="text" ref="prefix" v-model="prefix" />
-        <button class="header-btn" @click="prefix = ''">Очистить</button>
+      <header class="grid header">
+        <input class="header-input" type="text" ref="prefix" v-model.trim="prefix" />
+        <input class="header-input" type="text" ref="postfix" v-model.trim="postfix" />
       </header>
-      <main class="main" @click="copy">
+      <!-- <main class="main" @click="copy"> -->
+      <main class="main" @click="regenerate">
         <div :class="resultClasses">
           {{ result }} <br />
           скопирован
         </div>
         <input class="main-hidden" type="text" ref="result" v-model="result" />
       </main>
+      <footer class="grid footer">
+        <button class="header-btn" @click="prefix = ''">Очистить prefix</button>
+        <button class="header-btn" @click="postfix = ''">Очистить postfix</button>
+      </footer>
     </div>
 
     <script>
@@ -98,69 +113,65 @@
         el: '#app',
         data: {
           prefix: '',
+          postfix: '',
           result: '',
           isCopied: false,
-          isStarted: false,
+          clipboard: null, // Сохраняются в данных vue
         },
         computed: {
-          // btnLabel: function () {
-          //   return this.isStarted ? 'Остановить' : 'Запустить';
-          // },
           resultClasses: function () {
             return {
               'main-result': true,
-              'main-result--visible': this.isStarted && this.isCopied,
+              'main-result--visible': this.isCopied,
             };
           },
         },
         methods: {
-          regenerate: function () {
-            this.generate();
-            this.copy();
-          },
-          startStop: function () {
-            if (this.isStarted) {
-              this.stop();
-            } else {
-              this.start();
-            }
-            this.isStarted = !this.isStarted;
-          },
-          copy: function () {
-            this.$refs.result.select();
-            // console.log(this.$refs.result.value);
-            document.execCommand('copy');
-            this.isCopied = true;
-          },
           clear: function () {
             this.result = '';
             this.isCopied = false;
             document.title = 'ID удалён' + this.result;
           },
-          generate: function () {
-            var now = new Date();
-            var strNow = String(now.getTime());
+          copy: function () {
+            this.clipboard = new ClipboardJS('.main', {
+              target: function () {
+                return document.querySelector('.main-hidden');
+              },
+            });
+            this.clipboard.on('success', function (e) {
+              console.log(e.text);
+              console.log('Копия прошла успешно ~~~~~~~~~~~~');
+            });
 
-            if (this.prefix) {
-              this.prefix = this.prefix + ' ';
+            this.isCopied = true;
+          },
+          generate: function () {
+            var tempPostfix = '';
+
+            if (this.postfix) {
+              tempPostfix = this.postfix;
+            } else {
+              var now = new Date();
+              var strNow = String(now.getTime());
+              tempPostfix = strNow.split('').reverse().join('');
             }
 
-            this.result = this.prefix + strNow.split('').reverse().join('');
+            var tempPrefix = this.prefix ? this.prefix + ' ' : '';
+
+            this.result = tempPrefix + tempPostfix;
             document.title = 'Новый ID: ' + this.result;
           },
-          start: function () {
+          regenerate: function () {
             this.generate();
-            window.addEventListener('blur', this.clear);
-            window.addEventListener('focus', this.generate);
-          },
-          stop: function () {
-            this.clear();
-            window.removeEventListener('blur', this.clear);
-            window.removeEventListener('focus', this.generate);
+            this.copy();
           },
         },
         mounted: function () {
-          this.startStop();
+          // this.generate();
+          // this.regenerate();
+          window.addEventListener('blur', this.clear);
+          window.addEventListener('focus', this.generate);
+          // window.addEventListener('focus', this.regenerate);
         },
       });
     </script>
