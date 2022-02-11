@@ -32,36 +32,32 @@
       }
 
       .grid {
+        position: fixed;
         display: grid;
+        width: 100%;
       }
 
       .header {
+        top: 0;
         grid-template-columns: 1fr 2fr;
       }
 
-      .header-input,
-      .header-btn {
+      .control {
         display: block;
         padding: 10px;
         font-size: 30px;
+        text-align: center;
       }
 
       .main {
-        margin: 0 auto;
-        padding: 40px 0 30px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 200px;
         height: 100%;
       }
 
-      .main-input {
-        display: block;
-        margin: 10px auto;
-        padding: 10px;
-        font-size: 25px;
-      }
-
       .main-result {
-        display: table;
-        margin: 20px auto 0;
         border-radius: 20px;
         padding: 20px;
         background-color: rgb(54, 54, 54);
@@ -80,10 +76,12 @@
       }
 
       .footer {
-        position: fixed;
         bottom: 0;
         grid-template-columns: 1fr 1fr;
-        width: 100%;
+      }
+
+      .btn {
+        cursor: pointer;
       }
     </style>
   </head>
@@ -91,8 +89,20 @@
   <body>
     <div id="app">
       <header class="grid header">
-        <input class="header-input" type="text" ref="prefix" v-model.trim="prefix" />
-        <input class="header-input" type="text" ref="postfix" v-model.trim="postfix" />
+        <input
+          class="control"
+          type="text"
+          placeholder="Prefix"
+          ref="prefix"
+          v-model.trim="prefix"
+        />
+        <input
+          class="control"
+          type="text"
+          placeholder="Postfix"
+          ref="postfix"
+          v-model.trim="postfix"
+        />
       </header>
       <!-- <main class="main" @click="copy"> -->
       <main class="main" @click="regenerate">
@@ -103,8 +113,8 @@
         <input class="main-hidden" type="text" ref="result" v-model="result" />
       </main>
       <footer class="grid footer">
-        <button class="header-btn" @click="prefix = ''">Очистить prefix</button>
-        <button class="header-btn" @click="postfix = ''">Очистить postfix</button>
+        <button class="control btn" @click="prefix = ''">Очистить prefix</button>
+        <button class="control btn" @click="postfix = ''">Очистить postfix</button>
       </footer>
     </div>
 
