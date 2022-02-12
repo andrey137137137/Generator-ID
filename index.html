@@ -95,6 +95,7 @@
           placeholder="Prefix"
           ref="prefix"
           v-model.trim="prefix"
+          @click="select('prefix')"
         />
         <input
           class="control"
@@ -102,6 +103,7 @@
           placeholder="Postfix"
           ref="postfix"
           v-model.trim="postfix"
+          @click="select('postfix')"
         />
       </header>
       <!-- <main class="main" @click="copy"> -->
@@ -126,7 +128,7 @@
           postfix: '',
           result: '',
           isCopied: false,
-          clipboard: null, // Сохраняются в данных vue
+          clipboard: null,
         },
         computed: {
           resultClasses: function () {
@@ -137,6 +139,9 @@
           },
         },
         methods: {
+          select: function (name) {
+            this.$refs[name].select();
+          },
           clear: function () {
             this.result = '';
             this.isCopied = false;
@@ -148,11 +153,10 @@
                 return document.querySelector('.main-hidden');
               },
             });
-            this.clipboard.on('success', function (e) {
-              console.log(e.text);
-              console.log('Копия прошла успешно ~~~~~~~~~~~~');
-            });
-
+            // this.clipboard.on('success', function (e) {
+            //   console.log(e.text);
+            //   console.log('Копия прошла успешно ~~~~~~~~~~~~');
+            // });
             this.isCopied = true;
           },
           generate: function () {
