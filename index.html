@@ -106,6 +106,7 @@
           ref="prefix"
           v-model.trim="prefix"
           @click="select('prefix')"
+          @dblClick="replace('prefix')"
         />
         <input
           class="form-control"
@@ -114,6 +115,7 @@
           ref="postfix"
           v-model.trim="postfix"
           @click="select('postfix')"
+          @dblClick="replace('postfix')"
         />
       </header>
       <!-- <main class="main" @click="copy"> -->
@@ -151,6 +153,16 @@
         methods: {
           select: function (name) {
             this.$refs[name].select();
+          },
+          replace: function (name) {
+            navigator.clipboard
+              .readText()
+              .then((text) => {
+                this[name] = text;
+              })
+              .catch((err) => {
+                console.log('Clipboard not paste', err);
+              });
           },
           clear: function () {
             this.result = '';
